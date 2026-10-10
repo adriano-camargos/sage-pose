@@ -1,11 +1,17 @@
+
+# ============================================
+# SAGE-Pose - Git Ignore
+# ============================================
+
 # Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
 *.egg-info/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Ambientes locais
+# Ambientes virtuais
 .venv/
 venv/
 env/
@@ -19,14 +25,42 @@ env/
 cache/*
 !cache/.gitkeep
 
-# Dados grandes e resultados
-experiments/bop/data/
-experiments/synthetic/output/
+# Dados e imagens
+assets/cameras/
+experiments/
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tif
+*.tiff
+*.webp
+
+# Modelos CAD
+*.ply
+
+# Resultados e logs
+results/
+outputs/
+runs/
+logs/
+wandb/
+tensorboard/
+.ipynb_checkpoints/
 
 # Editores
 .vscode/
 .idea/
 
-# Arquivos temporários
+# Arquivos temporarios
 *.log
 *.tmp
+
+# Backup do ambiente Conda
+environment.backup.yml
+
+# ============================================
+# Pesos dos modelos
+# Manter .pt, .pth, .ckpt, .onnx
+# O Git LFS sera configurado na proxima etapa
+# ============================================
