@@ -1,0 +1,41 @@
+Listagem de caminhos de pasta
+O número de série do volume é 6477-A1BA
+C:.
+|   checklist_sage_pose.html
+|   estrutura.txt
+|   pyproject.toml
+|   README.md
+|   
++---assets
+|   \---objects
+|       \---objects_001
+|               metadata.yaml
+|               model.ply
+|               
++---cache
++---configs
+|       default.yaml
+|       
++---experiments
+|   +---bop
+|   \---synthetic
++---scripts
+|       benchmark.py
+|       estimate_pose.py
+|       generate_test_image.py
+|       prepare_object.py
+|       register_object.py
+|       
++---src
+|   \---saga-pose
+|           camera.py
+|           catalog.py
+|           estimator.py
+|           matching.py
+|           refinement.py
+|           renderer.py
+|           rotation_sampling.py
+|           search.py
+|           translation.py
+|           
+\---tests

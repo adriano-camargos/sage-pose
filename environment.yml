@@ -1,0 +1,12 @@
+name: sage-pose
+channels:
+  - defaults
+dependencies:
+  - pip
+  - python=3.11
+  - opencv
+  - trimesh
+  - numpy
+  - pyyaml
+  - pytest
+prefix: C:\Users\accm\miniconda3\envs\sage-pose

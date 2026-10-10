@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SAGE-Pose • Checklist Balde</title>
+<style>:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#172333;background:#f4f6f8}*{box-sizing:border-box}body{margin:0}main{max-width:1020px;margin:auto;padding:25px 16px 70px}header{background:#112c40;color:white;padding:27px;border-radius:15px}h1{font-size:1.65rem;margin:0 0 8px}h2{font-size:1.13rem;margin:0}p{line-height:1.5}header p{color:#d4e4ec;margin:4px 0}button,.filebtn{border:1px solid #b9c9d4;background:white;border-radius:9px;padding:10px 12px;font:inherit;cursor:pointer;color:#153a50}button:hover,.filebtn:hover{background:#eaf2f6}button:focus-visible,input:focus-visible{outline:3px solid #58a8dc;outline-offset:2px}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:19px 0}.progress{background:white;border:1px solid #d7e0e6;padding:17px;border-radius:12px;margin:15px 0}.bar{background:#e1e8ed;border-radius:999px;height:13px;overflow:hidden;margin-top:12px}.fill{background:#167e75;height:100%;width:0;transition:width .2s}.stat{display:flex;justify-content:space-between;gap:10px;font-weight:650}.hint{font-size:.84rem;color:#536678}.phase{background:white;border:1px solid #d7e0e6;border-radius:13px;margin:14px 0;overflow:hidden}summary{cursor:pointer;padding:16px;display:flex;justify-content:space-between;gap:12px;list-style:none}summary::-webkit-details-marker{display:none}.phase-title{font-weight:750}.phase-meta{color:#536678;font-size:.85rem;white-space:nowrap}.phase-desc{padding:0 16px 12px;color:#526273;font-size:.9rem}.tasks{border-top:1px solid #e5ebf0}.task{display:flex;gap:12px;align-items:flex-start;padding:12px 17px;border-bottom:1px solid #eff2f5;cursor:pointer}.task:last-child{border:0}.task input{margin-top:4px;transform:scale(1.2);accent-color:#167e75}.task span{display:block}.task small{display:block;color:#62717f;margin-top:3px;line-height:1.4}.task.done strong{text-decoration:line-through;color:#637483}.tag{font-size:.72rem;border-radius:5px;background:#e9f0f5;color:#355368;padding:3px 6px;white-space:nowrap;margin-left:auto}.note{border-left:4px solid #d39b4b;background:#fff9ed;padding:12px 16px;border-radius:5px;margin:16px 0}footer{font-size:.82rem;color:#526273;margin-top:24px}input[type=file]{display:none}@media print{.controls,button,.hint.controls-hint{display:none}.phase{break-inside:avoid}details:not([open]) .tasks{display:block}body{background:#fff}header{color:#111;background:#fff;border:1px solid #aaa}header p{color:#333}}@media(max-width:540px){.phase-meta{white-space:normal;text-align:right}h1{font-size:1.35rem}}</style></head><body><main>
+<header><h1>SAGE-Pose — Checklist de desenvolvimento: balde</h1><p>Estimador geométrico monocular baseado em CAD, máscara e câmera calibrada.</p><p>Meta: CPU • ≤ 1.000 ms por objeto (P95) • erro angular-alvo ≤ 10° nos casos observáveis • sem treinamento.</p></header>
+<div class="note"><strong>Cuidados para o balde:</strong> um balde aproximadamente circular, sem alça ou marcações geométricas assimétricas visíveis, não permite recuperar de forma única a rotação em torno de seu eixo. Considere simetrias e reporte hipóteses equivalentes. Diferencie alça fisicamente presente, alça visível na máscara e alça ocluída. A meta de 10° não é garantia para orientações indetermináveis.</div>
+<div class="controls"><button id="expand">Expandir fases</button><button id="collapse">Recolher fases</button><button id="export">Exportar progresso (.json)</button><label class="filebtn" for="import">Importar progresso</label><input id="import" type="file" accept="application/json,.json"><button id="reset">Desmarcar tudo</button><button onclick="window.print()">Imprimir / PDF</button></div>
+<div class="progress"><div class="stat"><span>Progresso geral</span><span id="total">0/0 — 0%</span></div><div class="bar"><div class="fill" id="fill"></div></div><p class="hint">As marcações são salvas automaticamente neste navegador. Exporte JSON para backup ou para continuar em outro dispositivo. O armazenamento local pode ser restrito em alguns navegadores ao abrir arquivos diretamente.</p></div>
+<div id="phases"></div>
+<footer><strong>Critério de conclusão:</strong> não considere uma fase pronta só porque seu código executa; salve resultados, testes e medições. O pipeline utiliza inicialmente uma máscara fornecida; a segmentação interativa por clique pode ser integrada depois sem modificar o estimador. Versão do roteiro: 1.0 — Balde.</footer>
+</main><script>
+const phases = [
+{title:'01 · Escopo e dados do balde',desc:'Fixar o primeiro objeto e o contrato geométrico.',tasks:[
+['Escolher balde físico e obter CAD correspondente','O CAD deve representar dimensões e geometria reais do balde usado.'],
+['Definir se a alça integra o objeto e o CAD','Registrar se a alça se move; alça articulada exige pose/estado adicional ou fixação.'],
+['Documentar unidades, origem e eixo axial do CAD','Salvar mm ou m, orientação dos eixos e referência de pose.'],
+['Fotografar balde de várias vistas','Incluir perfil, topo, inclinações e vistas da alça, se existir.'],
+['Definir cenários de avaliação','Fundo controlado primeiro; depois fundo variado e oclusões.'],
+['Definir convenções de simetria','Balde sem alça: rotação axial potencialmente indeterminada; registrar simetria condicional.']]},
+{title:'02 · Repositório e infraestrutura escalável',desc:'Permitir novos CADs sem editar o motor de pose.',tasks:[
+['Criar repositório Git, ambiente Python e pyproject.toml','Fixar versões e testar instalação limpa em CPU.'],
+['Criar estrutura src/, tests/, scripts/, configs/, assets/ e cache/','Separar dados por objeto do código do estimador.'],
+['Definir API estimate(object_id, mask, K, dist)','Retornar R, t, score, alternativas, tempo e status.'],
+['Criar metadata.yaml para o balde','Incluir units, origin, symmetry, mesh_file, handle_state.'],
+['Implementar cadastro genérico de modelos','Adicionar novo CAD só por arquivo + metadados, sem if por object_id.'],
+['Implementar cache por hash de malha e versão','Regenerar artefatos automaticamente quando geometria/parâmetros mudarem.']]},
+{title:'03 · Geometria CAD e calibração',desc:'Estabelecer consistência métrica e projetiva.',tasks:[
+['Validar malha PLY triangular','Checar degenerações, faces, origem, dimensões e orientação.'],
+['Criar visualização 3D com eixos do CAD','Conferir se topo, fundo e alça estão na posição esperada.'],
+['Calibrar câmera e salvar K + dist','Registrar resolução e modelo de distorção.'],
+['Implementar retificação de máscara e K ajustada','Evitar aplicar correção de distorção duas vezes.'],
+['Testar projeção sintética contra cv2.projectPoints','Documentar erro numérico e convenções objeto→câmera.'],
+['Verificar escala real do CAD versus balde físico','Sem escala métrica, a translação absoluta fica comprometida.']]},
+{title:'04 · Renderizador CPU e verdade de referência',desc:'Conseguir uma silhueta correta antes da estimação.',tasks:[
+['Implementar ou integrar rasterizador de silhuetas em CPU','Projeção perspectiva, z-buffer, recorte próximo e faces.'],
+['Gerar máscaras para poses R,t conhecidas','Testar vistas de lado, topo e inclinação.'],
+['Validar o tratamento da alça e aberturas visíveis','A máscara binária precisa preservar buracos que estejam realmente visíveis.'],
+['Criar cenas sintéticas com máscara e pose ground truth','Usar casos de controle reproduzíveis com seed fixa.'],
+['Comparar contornos renderizados com projeções de controle','Salvar imagens de diagnóstico e diferença pixel a pixel.'],
+['Medir velocidade do renderizador em 64, 128 e 256 px','Registrar CPU, número de threads e faces da malha.']]},
+{title:'05 · Baseline global B0',desc:'Construir referência correta, ainda sem obrigação de 1 s.',tasks:[
+['Implementar grade Euler de 15° (13.824 triplas)','Definir convenção de multiplicação e evitar contar triplas como rotações únicas.'],
+['Implementar IoU entre máscara observada e renderizada','Testar máscara vazia e casos sem interseção.'],
+['Estimar rotação inicialmente com translação verdadeira','Isolar erro de discretização do erro de translação.'],
+['Analisar mapa de escores e múltiplos máximos','Separar simetria axial de hipóteses incorretas.'],
+['Calcular erro geodésico com equivalências de simetria','Não penalizar rotações fisicamente equivalentes.'],
+['Salvar baseline de erro e tempo por cena','Relatar mediana, P95 e percentual de sucesso.']]},
+{title:'06 · Translação desconhecida e refinamento',desc:'Remover dependência de pose anterior.',tasks:[
+['Inicializar profundidade a partir de CAD, câmera e máscara','Usar estimativa condicionada à orientação; não supor escala ortográfica exata.'],
+['Inicializar deslocamento a partir do centro aparente','Corrigir vieses entre origem CAD e centroide da silhueta.'],
+['Otimizar t para cada hipótese finalista','Comparar resultados com translação verdadeira e estimada.'],
+['Adicionar distância de contornos (Chamfer) e IoU','Normalizar pesos de função de custo e testar robustez.'],
+['Refinar rotações localmente em SO(3)','Usar incrementos via rotvec/exponencial, não Euler global.'],
+['Retornar várias poses quando a forma for ambígua','Incluir score, separação angular e marcador de ambiguidade.']]},
+{title:'07 · Busca adaptativa para CPU',desc:'Objetivo de 1 s sem perder boas hipóteses.',tasks:[
+['Pré-computar vistas geométricas do balde','Armazenar artefatos reutilizáveis por modelo, não dependentes do frame.'],
+['Implementar descritores compactos de silhueta','Momentos, razão de aspecto, contorno ou assinatura radial.'],
+['Testar amostragem por direções de vista + giro no plano','Comparar cobertura angular com grade Euler.'],
+['Aplicar ranking barato antes da renderização final','Medir quantas hipóteses boas foram descartadas.'],
+['Selecionar top-k com diversidade geodésica','Evitar finalistas quase idênticos.'],
+['Implementar busca hierárquica e profiling por etapa','Registrar tempo total, número de renderizações e recall.'],
+['Testar P95 ≤ 1.000 ms em CPU de referência','Relatar hardware, threads e tamanho de imagem; otimizar conforme medições.']]},
+{title:'08 · Imagens reais, escalabilidade e relatório',desc:'Validar generalização do núcleo e limitações do balde.',tasks:[
+['Criar máscara real do balde em fundo controlado','Começar com máscara manual confiável; clique interativo depois.'],
+['Avaliar vistas com e sem alça visível','Quantificar ambiguidades e erros de orientação axial.'],
+['Perturbar máscara: erosão, dilatação e falhas locais','Medir degradação de recall e precisão.'],
+['Testar oclusão parcial e vistas de topo','Medir quando a informação é insuficiente.'],
+['Cadastrar segundo CAD sem alterar código','Provar que o catálogo é genérico; peça industrial assimétrica sugerida.'],
+['Medir custo de cadastro, cache e memória para vários CADs','Separar custo offline de latência online por objeto.'],
+['Comparar B0 (Euler+IoU) com busca adaptativa','Relatar erro ≤10°, recall, tempo e intervalos/variação.'],
+['Documentar limitações e publicar execução reproduzível','README, configs, comando único de benchmark, versões e resultados.']]}
+];
+const key='sage_pose_bucket_checklist_v1';const ids=phases.flatMap((p,i)=>p.tasks.map((_,j)=>`${i}-${j}`));let checked=new Set();try{const v=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(v))checked=new Set(v.filter(x=>ids.includes(x)))}catch{}
+const root=document.getElementById('phases');function render(){root.innerHTML='';phases.forEach((p,i)=>{const det=document.createElement('details');det.className='phase';det.open=i===0;const done=p.tasks.filter((_,j)=>checked.has(`${i}-${j}`)).length;const summary=document.createElement('summary');summary.innerHTML=`<span class="phase-title">${p.title}</span><span class="phase-meta">${done}/${p.tasks.length} concluídas</span>`;det.append(summary);const d=document.createElement('div');d.className='phase-desc';d.textContent=p.desc;det.append(d);const tasks=document.createElement('div');tasks.className='tasks';p.tasks.forEach(([title,desc],j)=>{const id=`${i}-${j}`;const label=document.createElement('label');label.className='task'+(checked.has(id)?' done':'');const cb=document.createElement('input');cb.type='checkbox';cb.checked=checked.has(id);cb.addEventListener('change',()=>{if(cb.checked)checked.add(id);else checked.delete(id);save();renderKeep(i)});const text=document.createElement('span');const strong=document.createElement('strong');strong.textContent=title;const small=document.createElement('small');small.textContent=desc;text.append(strong,small);label.append(cb,text);tasks.append(label)});det.append(tasks);root.append(det)});progress()}
+function renderKeep(phase){const states=[...root.querySelectorAll('details')].map(d=>d.open);render();[...root.querySelectorAll('details')].forEach((d,i)=>d.open=states[i]);}function progress(){const n=checked.size;document.getElementById('total').textContent=`${n}/${ids.length} — ${Math.round(n/ids.length*100)}%`;document.getElementById('fill').style.width=(n/ids.length*100)+'%'}function save(){try{localStorage.setItem(key,JSON.stringify([...checked]))}catch(e){console.warn('Não foi possível salvar no navegador:',e)}}
+document.getElementById('expand').onclick=()=>root.querySelectorAll('details').forEach(d=>d.open=true);document.getElementById('collapse').onclick=()=>root.querySelectorAll('details').forEach(d=>d.open=false);document.getElementById('reset').onclick=()=>{if(confirm('Desmarcar todas as tarefas?')){checked.clear();save();render()}};
+document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify({version:1,project:'SAGE-Pose Balde',checked:[...checked],exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sage_pose_balde_progresso.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+document.getElementById('import').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.checked))throw Error('Arquivo sem lista checked');checked=new Set(data.checked.filter(x=>ids.includes(x)));save();render();alert('Progresso importado.')}catch(err){alert('Falha na importação: '+err.message)}e.target.value=''});render();
+</script></body></html>

@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Ambientes locais
+.venv/
+venv/
+env/
+
+# Credenciais
+.env
+.env.*
+!.env.example
+
+# Cache do SAGE-Pose
+cache/*
+!cache/.gitkeep
+
+# Dados grandes e resultados
+experiments/bop/data/
+experiments/synthetic/output/
+
+# Editores
+.vscode/
+.idea/
+
+# Arquivos temporários
+*.log
+*.tmp
